@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-beige-50 via-cream-50 to-rose-50 text-beige-900 font-sans;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-beige-800;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white/90 backdrop-blur-sm rounded-3xl shadow-gentle border border-beige-200/60 p-8 transition-all duration-300;
+  }
+  
+  .card:hover {
+    @apply shadow-soft border-rose-200/40 transform hover:scale-[1.01];
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-rose hover:shadow-soft hover:scale-105;
+  }
+  
+  .btn-secondary {
+    @apply bg-gradient-to-r from-beige-100 to-cream-100 hover:from-beige-200 hover:to-cream-200 text-beige-800 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 border border-beige-200 hover:border-rose-200 hover:scale-105;
+  }
+  
+  .btn-soft {
+    @apply bg-white/80 hover:bg-white/95 text-beige-700 px-6 py-3 rounded-xl font-medium transition-all duration-300 border border-beige-200/50 hover:border-rose-200/50 backdrop-blur-sm hover:scale-105;
+  }
+  
+  .input-field {
+    @apply w-full px-6 py-4 border-2 border-beige-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-300/50 focus:border-rose-400 transition-all duration-300 bg-white/80 backdrop-blur-sm placeholder-beige-500;
+  }
+  
+  .nav-item {
+    @apply flex items-center px-6 py-4 text-left rounded-2xl transition-all duration-300 font-medium;
+  }
+  
+  .nav-item-active {
+    @apply bg-gradient-to-r from-rose-100/80 to-beige-100/80 text-rose-800 border-l-4 border-rose-500 shadow-gentle;
+  }
+  
+  .nav-item-inactive {
+    @apply text-beige-600 hover:bg-gradient-to-r hover:from-beige-100/50 hover:to-cream-100/50 hover:text-beige-800;
+  }
+  
+  .stat-card {
+    @apply card text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-white/95 to-rose-50/30;
+  }
+  
+  .icon-wrapper {
+    @apply w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-gentle transition-all duration-300;
+  }
+}
