@@ -1,4 +1,4 @@
-// File: D:\Hackathon\app\patient\page.tsx
+// File: /home/manu/Hackathon_25/MindCare-MentalHealthApp/app/patient/page.tsx
 import * as entry from '../../../../app/patient/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

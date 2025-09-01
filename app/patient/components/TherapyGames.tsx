@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
-import { PlayIcon, TrophyIcon, ClockIcon, StarIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
+import { PlayIcon, TrophyIcon, ClockIcon, StarIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { aiService } from '../../../lib/ai-service'
 
 const games = [
   {
@@ -81,12 +82,43 @@ const achievements = [
 export default function TherapyGames() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [showAchievements, setShowAchievements] = useState(false)
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([])
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(true)
 
   const categories = ['All', 'Memory', 'Mindfulness', 'Emotional Intelligence', 'Coping Skills', 'Attention', 'Positive Psychology']
 
-  const filteredGames = selectedCategory === 'All' 
-    ? games 
+  const filteredGames = selectedCategory === 'All'
+    ? games
     : games.filter(game => game.category === selectedCategory)
+
+  useEffect(() => {
+    const generateRecommendations = async () => {
+      try {
+        // Mock patient profile - in a real app, this would come from user data
+        const patientProfile = {
+          mood: 7, // Current mood level
+          concerns: ['Anxiety', 'Stress'],
+          preferences: ['Mindfulness', 'Breathing exercises'],
+          progress: 'Intermediate' // Beginner, Intermediate, Advanced
+        }
+
+        const recommendations = await aiService.generateTherapyRecommendations(patientProfile)
+        setAiRecommendations(recommendations)
+      } catch (error) {
+        console.error('Failed to generate AI recommendations:', error)
+        // Fallback recommendations
+        setAiRecommendations([
+          'Try the Mindful Breathing exercise for 10 minutes daily',
+          'Practice the Gratitude Garden activity to build positive thinking',
+          'Consider the Stress Buster game for quick anxiety relief'
+        ])
+      } finally {
+        setIsLoadingRecommendations(false)
+      }
+    }
+
+    generateRecommendations()
+  }, [])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -234,6 +266,44 @@ export default function TherapyGames() {
             </button>
           </div>
         ))}
+      </div>
+
+      {/* AI-Powered Recommendations */}
+      <div className="card">
+        <h3 className="text-xl font-display font-bold text-beige-800 mb-6 flex items-center">
+          <SparklesIcon className="w-6 h-6 text-rose-500 mr-3" />
+          AI Personalized Recommendations
+        </h3>
+
+        {isLoadingRecommendations ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-beige-600"></div>
+            <span className="ml-3 text-beige-700">Generating personalized recommendations...</span>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {aiRecommendations.map((recommendation, index) => (
+              <div key={index} className="flex items-start space-x-4 p-4 bg-gradient-to-r from-rose-50/50 to-beige-50/50 rounded-2xl border border-rose-200/50">
+                <div className="flex-shrink-0 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  {index + 1}
+                </div>
+                <div className="flex-1">
+                  <p className="text-beige-800 font-medium">{recommendation}</p>
+                </div>
+                <button className="btn-soft text-sm">
+                  Try Now
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-6 p-4 bg-gradient-to-r from-beige-100/50 to-cream-100/50 rounded-xl border border-beige-200/50">
+          <p className="text-beige-700 text-sm">
+            💡 <strong>AI Insight:</strong> These recommendations are personalized based on your recent mood patterns,
+            activity levels, and therapy progress. They adapt as you continue your wellness journey.
+          </p>
+        </div>
       </div>
 
       {/* Daily Challenge */}

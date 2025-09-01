@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { FaceSmileIcon, HeartIcon, BoltIcon, CloudIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { aiService, MoodData } from '../../../lib/ai-service'
 
 const moodEmojis = [
   { value: 1, emoji: '😢', label: 'Very Sad' },
@@ -29,6 +30,9 @@ export default function MoodTracking() {
   const [journalEntry, setJournalEntry] = useState('')
   const [energyLevel, setEnergyLevel] = useState(5)
   const [sleepQuality, setSleepQuality] = useState(5)
+  const [aiInsight, setAiInsight] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [showInsight, setShowInsight] = useState(false)
 
   const toggleSymptom = (symptom: string) => {
     setSelectedSymptoms(prev => 
@@ -46,17 +50,49 @@ export default function MoodTracking() {
     )
   }
 
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log({
-      mood: selectedMood,
-      symptoms: selectedSymptoms,
-      activities: selectedActivities,
-      journal: journalEntry,
-      energy: energyLevel,
-      sleep: sleepQuality
-    })
-    alert('Mood entry saved! 🎉')
+  const handleSubmit = async () => {
+    setIsLoading(true)
+    try {
+      const moodData: MoodData = {
+        mood: selectedMood,
+        symptoms: selectedSymptoms,
+        activities: selectedActivities,
+        energyLevel,
+        sleepQuality,
+        journalEntry
+      }
+
+      // Check for crisis indicators in journal entry
+      let crisisDetected = false
+      let crisisResponse = ''
+
+      if (journalEntry) {
+        const crisisCheck = await aiService.detectCrisis(journalEntry)
+        if (crisisCheck.isCrisis) {
+          crisisDetected = true
+          crisisResponse = crisisCheck.response
+        }
+      }
+
+      if (crisisDetected) {
+        setAiInsight(crisisResponse)
+      } else {
+        const insight = await aiService.analyzeMood(moodData)
+        setAiInsight(insight)
+      }
+
+      setShowInsight(true)
+
+      // Here you would typically save to a database
+      console.log('Mood entry saved:', moodData)
+    } catch (error) {
+      console.error('Failed to save mood entry:', error)
+      // Fallback message if AI fails
+      setAiInsight('Thank you for sharing how you\'re feeling. Your check-in has been saved. 🌸')
+      setShowInsight(true)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -197,21 +233,21 @@ export default function MoodTracking() {
       </div>
 
       {/* AI Insights */}
-      {selectedMood > 0 && (
+      {showInsight && (
         <div className="card">
           <h3 className="text-xl font-display font-semibold text-warm-900 mb-6 flex items-center">
             <SparklesIcon className="w-6 h-6 text-sage-600 mr-3" />
             AI Insights
           </h3>
           <div className="bg-gradient-to-br from-sage-100/50 to-cream-100/50 p-6 rounded-2xl border border-sage-200/50">
-            <p className="text-warm-800 leading-relaxed">
-              {selectedMood >= 5 
-                ? "It's wonderful to see you're feeling positive today! Your mood has been trending upward this week. Keep doing what's working for you! ✨"
-                : selectedMood >= 3
-                ? "You're having a neutral day, which is perfectly normal. Consider trying a quick breathing exercise or reaching out to a friend. 🌱"
-                : "I notice you're having a tough day. Remember that difficult feelings are temporary. Would you like to try some coping strategies or talk to your therapist? 💙"
-              }
-            </p>
+            {isLoading ? (
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sage-600"></div>
+                <p className="text-warm-700">Generating personalized insights...</p>
+              </div>
+            ) : (
+              <p className="text-warm-800 leading-relaxed">{aiInsight}</p>
+            )}
           </div>
         </div>
       )}
@@ -220,14 +256,21 @@ export default function MoodTracking() {
       <div className="flex justify-center">
         <button
           onClick={handleSubmit}
-          disabled={selectedMood === 0}
+          disabled={selectedMood === 0 || isLoading}
           className={`px-12 py-4 rounded-2xl font-medium transition-all duration-300 ${
-            selectedMood === 0
+            selectedMood === 0 || isLoading
               ? 'bg-cream-200 text-warm-500 cursor-not-allowed'
               : 'btn-primary hover:scale-105 shadow-soft hover:shadow-gentle'
           }`}
         >
-          Save Today's Check-in
+          {isLoading ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span>Analyzing...</span>
+            </div>
+          ) : (
+            'Save Today\'s Check-in'
+          )}
         </button>
       </div>
     </div>

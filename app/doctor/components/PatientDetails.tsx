@@ -1,6 +1,8 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { ArrowLeftIcon, ChatBubbleLeftIcon, VideoCameraIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { aiService, PatientData } from '../../../lib/ai-service'
 
 const mockMoodData = [
   { date: '2024-01-01', mood: 6, sleep: 7.2, heartRate: 72 },
@@ -16,6 +18,36 @@ interface PatientDetailsProps {
 }
 
 export default function PatientDetails({ patient, onBack }: PatientDetailsProps) {
+  const [aiSummary, setAiSummary] = useState('')
+  const [isLoadingSummary, setIsLoadingSummary] = useState(true)
+
+  useEffect(() => {
+    const generateSummary = async () => {
+      try {
+        const patientData: PatientData = {
+          name: patient.name,
+          age: patient.age,
+          condition: patient.condition,
+          moodTrend: patient.moodTrend,
+          riskLevel: patient.riskLevel,
+          wearableData: patient.wearableData,
+          lastSession: patient.lastSession
+        }
+
+        const summary = await aiService.generatePatientSummary(patientData)
+        setAiSummary(summary)
+      } catch (error) {
+        console.error('Failed to generate AI summary:', error)
+        // Fallback summary
+        setAiSummary('Patient data analysis temporarily unavailable. Please review manual assessment and wearable data for clinical insights.')
+      } finally {
+        setIsLoadingSummary(false)
+      }
+    }
+
+    generateSummary()
+  }, [patient])
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -50,11 +82,14 @@ export default function PatientDetails({ patient, onBack }: PatientDetailsProps)
           <div className="card">
             <h3 className="text-lg font-semibold text-beige-800 mb-4">🤖 AI Summary</h3>
             <div className="bg-beige-50 p-4 rounded-lg">
-              <p className="text-beige-700">
-                Patient shows signs of improvement over the past week. Sleep quality has increased by 15%, 
-                and mood ratings are trending upward. However, heart rate variability suggests ongoing stress. 
-                Recommend continuing current therapy approach with additional stress management techniques.
-              </p>
+              {isLoadingSummary ? (
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-beige-600"></div>
+                  <p className="text-beige-700">Analyzing patient data...</p>
+                </div>
+              ) : (
+                <p className="text-beige-700">{aiSummary}</p>
+              )}
             </div>
           </div>
 

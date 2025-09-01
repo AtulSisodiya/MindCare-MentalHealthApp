@@ -1,6 +1,8 @@
 'use client'
+import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { CalendarIcon, HeartIcon, ClockIcon, TrophyIcon, SparklesIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, HeartIcon, ClockIcon, TrophyIcon, SparklesIcon, CheckCircleIcon, PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { aiService, ChatMessage } from '../../../lib/ai-service'
 
 const mockMoodData = [
   { date: '1/10', mood: 6, energy: 5 },
@@ -13,6 +15,82 @@ const mockMoodData = [
 ]
 
 export default function Dashboard() {
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      role: 'assistant',
+      content: 'Hi Sarah! I noticed your sleep improved last night. How are you feeling today? Would you like to try a quick mindfulness exercise? 🌸',
+      timestamp: new Date()
+    }
+  ])
+  const [currentMessage, setCurrentMessage] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim()) return
+
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: currentMessage,
+      timestamp: new Date()
+    }
+
+    setChatMessages(prev => [...prev, userMessage])
+    const messageToSend = currentMessage
+    setCurrentMessage('')
+    setIsTyping(true)
+
+    try {
+      // First, check for crisis indicators
+      const crisisCheck = await aiService.detectCrisis(messageToSend)
+
+      let aiResponse: string
+      if (crisisCheck.isCrisis) {
+        // Crisis detected - provide urgent support response
+        aiResponse = crisisCheck.response
+
+        // Add crisis alert styling to the message
+        const crisisMessage: ChatMessage = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        }
+        setChatMessages(prev => [...prev, crisisMessage])
+
+        // You could also trigger additional actions here like:
+        // - Send notification to healthcare provider
+        // - Log crisis event
+        // - Provide emergency contact information
+      } else {
+        // Normal conversation flow
+        aiResponse = await aiService.generateChatResponse(chatMessages, messageToSend)
+        const aiMessage: ChatMessage = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        }
+        setChatMessages(prev => [...prev, aiMessage])
+      }
+    } catch (error) {
+      console.error('Chat error:', error)
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: 'I\'m here to listen. How are you feeling right now? 💙',
+        timestamp: new Date()
+      }
+      setChatMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
   return (
     <div className="space-y-10">
       <div className="flex items-center justify-between">
@@ -139,15 +217,89 @@ export default function Dashboard() {
               <SparklesIcon className="w-6 h-6 text-rose-500 mr-3" />
               Your AI Companion
             </h3>
-            <div className="bg-gradient-to-br from-rose-100/50 to-beige-100/50 p-6 rounded-2xl border border-rose-200/50">
-              <p className="text-beige-800 mb-6 leading-relaxed font-medium text-lg">
-                "Hi Sarah! I noticed your sleep improved last night. How are you feeling today? Would you like to try a quick mindfulness exercise? 🌸"
-              </p>
-              <div className="flex space-x-4">
-                <button className="btn-primary flex-1">Chat with AI</button>
-                <button className="btn-soft">Later</button>
+
+            {!isChatOpen ? (
+              <div className="bg-gradient-to-br from-rose-100/50 to-beige-100/50 p-6 rounded-2xl border border-rose-200/50">
+                <p className="text-beige-800 mb-6 leading-relaxed font-medium text-lg">
+                  {chatMessages[chatMessages.length - 1]?.content || 'Hi! I\'m here to support your wellness journey. 🌸'}
+                </p>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setIsChatOpen(true)}
+                    className="btn-primary flex-1"
+                  >
+                    Chat with AI
+                  </button>
+                  <button className="btn-soft">Later</button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-gradient-to-br from-rose-100/50 to-beige-100/50 rounded-2xl border border-rose-200/50">
+                {/* Chat Header */}
+                <div className="flex items-center justify-between p-4 border-b border-rose-200/30">
+                  <h4 className="font-semibold text-beige-800">AI Chat</h4>
+                  <button
+                    onClick={() => setIsChatOpen(false)}
+                    className="text-beige-600 hover:text-beige-800"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Chat Messages */}
+                <div className="max-h-64 overflow-y-auto p-4 space-y-3">
+                  {chatMessages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-2xl ${
+                          message.role === 'user'
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-white text-beige-800 border border-beige-200'
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-white text-beige-800 border border-beige-200 px-4 py-2 rounded-2xl">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-beige-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-beige-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-beige-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Chat Input */}
+                <div className="p-4 border-t border-rose-200/30">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Type your message..."
+                      className="flex-1 px-3 py-2 border border-beige-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                      disabled={isTyping}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!currentMessage.trim() || isTyping}
+                      className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <PaperAirplaneIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Upcoming */}

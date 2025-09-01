@@ -1,4 +1,4 @@
-// File: D:\Hackathon\app\layout.tsx
+// File: /home/manu/Hackathon_25/MindCare-MentalHealthApp/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
