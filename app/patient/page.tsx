@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import ProtectedRoute from '../../components/ProtectedRoute'
 import PatientLayout from './components/PatientLayout'
 import Dashboard from './components/Dashboard'
 import MoodTracking from './components/MoodTracking'
@@ -12,7 +13,11 @@ export default function PatientPortal() {
   const [isNewUser, setIsNewUser] = useState(false) // Set to true for new user flow
 
   if (isNewUser) {
-    return <Onboarding onComplete={() => setIsNewUser(false)} />
+    return (
+      <ProtectedRoute>
+        <Onboarding onComplete={() => setIsNewUser(false)} />
+      </ProtectedRoute>
+    )
   }
 
   const renderContent = () => {
@@ -31,8 +36,10 @@ export default function PatientPortal() {
   }
 
   return (
-    <PatientLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {renderContent()}
-    </PatientLayout>
+    <ProtectedRoute>
+      <PatientLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+        {renderContent()}
+      </PatientLayout>
+    </ProtectedRoute>
   )
 }

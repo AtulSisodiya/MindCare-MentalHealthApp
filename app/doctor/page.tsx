@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import ProtectedRoute from '../../components/ProtectedRoute'
 import DoctorLayout from './components/DoctorLayout'
 import PatientList from './components/PatientList'
 import PatientDetails from './components/PatientDetails'
@@ -31,8 +32,10 @@ export default function DoctorDashboard() {
   }
 
   return (
-    <DoctorLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {renderContent()}
-    </DoctorLayout>
+    <ProtectedRoute>
+      <DoctorLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+        {renderContent()}
+      </DoctorLayout>
+    </ProtectedRoute>
   )
 }
