@@ -1,9 +1,52 @@
+'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { UserIcon, HeartIcon, SparklesIcon, DevicePhoneMobileIcon, HandRaisedIcon } from '@heroicons/react/24/outline'
+import { UserIcon, HeartIcon, SparklesIcon, DevicePhoneMobileIcon, HandRaisedIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../lib/auth-context'
 
 export default function HomePage() {
+  const { isAuthenticated, logout, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login')
+    }
+  }, [isAuthenticated, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-beige-50 via-cream-50 to-rose-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
+          <p className="text-beige-700">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-beige-50 via-cream-50 to-rose-50">
+      {/* Header with logout */}
+      <header className="bg-white/90 backdrop-blur-sm shadow-gentle border-b border-beige-200/60">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-display font-bold text-beige-800">MindCare</h1>
+            <button
+              onClick={logout}
+              className="flex items-center space-x-2 px-4 py-2 bg-beige-100 hover:bg-beige-200 text-beige-700 rounded-lg transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-6 py-20">
         <div className="text-center mb-20">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-rose-400 to-rose-500 rounded-full mb-8 shadow-rose">

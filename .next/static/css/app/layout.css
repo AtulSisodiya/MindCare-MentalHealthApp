@@ -838,6 +838,9 @@ h1, h2, h3, h4, h5, h6{
 .top-1\/2{
   top: 50%;
 }
+.right-3{
+  right: 0.75rem;
+}
 .mx-auto{
   margin-left: auto;
   margin-right: auto;
@@ -1030,6 +1033,9 @@ h1, h2, h3, h4, h5, h6{
 }
 .max-w-xs{
   max-width: 20rem;
+}
+.max-w-md{
+  max-width: 28rem;
 }
 .flex-1{
   flex: 1 1 0%;
@@ -1343,6 +1349,10 @@ h1, h2, h3, h4, h5, h6{
 .border-rose-200\/30{
   border-color: rgb(251 217 220 / 0.3);
 }
+.border-rose-500{
+  --tw-border-opacity: 1;
+  border-color: rgb(232 93 117 / var(--tw-border-opacity, 1));
+}
 .bg-beige-100{
   --tw-bg-opacity: 1;
   background-color: rgb(253 249 243 / var(--tw-bg-opacity, 1));
@@ -1459,6 +1469,10 @@ h1, h2, h3, h4, h5, h6{
 .bg-white{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+.bg-red-50{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity, 1));
 }
 .bg-gradient-to-br{
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
@@ -1694,6 +1708,9 @@ h1, h2, h3, h4, h5, h6{
 .pt-16{
   padding-top: 4rem;
 }
+.pr-12{
+  padding-right: 3rem;
+}
 .text-left{
   text-align: left;
 }
@@ -1863,6 +1880,10 @@ h1, h2, h3, h4, h5, h6{
   --tw-text-opacity: 1;
   color: rgb(133 77 14 / var(--tw-text-opacity, 1));
 }
+.text-red-700{
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
+}
 .antialiased{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -1989,6 +2010,11 @@ h1, h2, h3, h4, h5, h6{
   color: rgb(184 41 76 / var(--tw-text-opacity, 1));
 }
 
+.hover\:text-beige-700:hover{
+  --tw-text-opacity: 1;
+  color: rgb(192 138 86 / var(--tw-text-opacity, 1));
+}
+
 .hover\:shadow-gentle:hover{
   --tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px 0 var(--tw-shadow-color);
@@ -2032,6 +2058,11 @@ h1, h2, h3, h4, h5, h6{
 .focus\:ring-rose-300:focus{
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(247 184 190 / var(--tw-ring-opacity, 1));
+}
+
+.focus\:ring-rose-500:focus{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(232 93 117 / var(--tw-ring-opacity, 1));
 }
 
 .disabled\:cursor-not-allowed:disabled{
